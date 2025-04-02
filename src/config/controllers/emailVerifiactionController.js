@@ -20,9 +20,9 @@ const emailVerify = async (req, res) => {
         console.error("JWT Verification Error:", error.message);
 
         if (error.name === "TokenExpiredError") {
-            return res.redirect(`${process.env.FRONTEND_URL}/Login?error=token_expired`);
+            return res.redirect(`${process.env.FRONTEND_URL}/?error=token_expired`);
         }
-        res.redirect(`${process.env.FRONTEND_URL}/Login?error=invalid_token`);
+        res.redirect(`${process.env.FRONTEND_URL}/?error=invalid_token`);
     }
 };
 
