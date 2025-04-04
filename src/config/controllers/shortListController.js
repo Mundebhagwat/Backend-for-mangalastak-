@@ -1,38 +1,45 @@
 const mongoose = require("mongoose");
 const User = require("../model/userSchema");
 
-// Shortlist or unshortlist a profile
+
+// updated shortlist code 
 const shortlistProfile = async (req, res) => {
     try {
         const userId = req.user.id;
         const profileId = req.params.profileId;
 
-        const user = await User.findById(userId);
+        // console.log("user Id: " + userId + " profile Id: " + profileId);
+
+        // Only fetch shortlistedProfiles field to check the status
+        const user = await User.findById(userId).select("shortlistedProfiles");
+
         const isProfileInShortlist = user.shortlistedProfiles.includes(profileId);
 
         if (isProfileInShortlist) {
-            // Remove from shortlist
-            user.shortlistedProfiles = user.shortlistedProfiles.filter(
-                id => id.toString() !== profileId
-            );
-            await user.save();
-            res.json({
+            // Remove from shortlist using $pull
+            await User.findByIdAndUpdate(userId, {
+                $pull: { shortlistedProfiles: profileId }
+            });
+            return res.json({
                 message: "Profile removed from shortlist",
                 isShortlisted: false
             });
         } else {
-            // Add to shortlist
-            user.shortlistedProfiles.push(profileId);
-            await user.save();
-            res.json({
+            // Add to shortlist using $addToSet (avoids duplicates)
+            await User.findByIdAndUpdate(userId, {
+                $addToSet: { shortlistedProfiles: profileId }
+            });
+            return res.json({
                 message: "Profile added to shortlist",
                 isShortlisted: true
             });
         }
     } catch (error) {
-        res.status(500).json({ message: "Error updating shortlist" });
+        console.error("Error in shortlistProfile:", error);
+        res.status(500).json({ message: "Error updating shortlist", error });
     }
 };
+
 
 const checkShortlistStatus = async (req, res) => {
     try {

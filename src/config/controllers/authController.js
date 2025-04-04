@@ -6,67 +6,6 @@ const { sendVerificationEmail } = require("../services/emailService");
 const cloudinary = require("../utils/cloudinary");
 
 
-// // Create User (Signup)
-// const registerUser = async (req, res) => {
-//     try {
-//         const { fullName, email, password, phone, gender, dateOfBirth, religion, caste, location, bio, role, profilePicture } = req.body;
-
-//         const existingUser = await User.findOne({ email });
-//         if (existingUser) {
-//             return res.status(400).json({ message: "Email already exists" });
-//         }
-
-//         const currentDate = new Date();
-//         if (new Date(dateOfBirth) > currentDate) {
-//             return res.status(400).json({ error: "Invalid date of birth. Cannot be in the future." });
-//         }
-
-
-
-//         // Inside your user registration route
-//         if (!password || password.length < 3) {
-//             return res.status(400).json({ message: "Password must be at least 3 characters long" });
-//         }
-
-
-//         // Hash password
-//         const salt = await bcrypt.genSalt(10);
-//         const hashedPassword = await bcrypt.hash(password, salt);
-
-//         if (!profilePicture) {
-//             return res.status(400).json({ message: "Profile picture is required" });
-//         }
-
-//         const newUser = new User({
-//             fullName,
-//             email,
-//             password: hashedPassword,
-//             phone,
-//             gender,
-//             dateOfBirth,
-//             religion,
-//             caste,
-//             location,
-//             bio,
-//             role: role || "User",
-//             profilePicture,
-//         });
-
-//         await newUser.save();
-
-//         const token = generateVerificationToken(newUser._id, newUser.role);
-//         await sendVerificationEmail(newUser.email, token);
-
-//         res.status(201).json({ message: "User registered successfully Check email for verification.", userId: newUser._id });
-//     } catch (error) {
-//         console.error("Registration error:", error);
-//         res.status(500).json({ message: "Internal Server Error", error: error.message });
-//     }
-// };
-
-
-// new route for registration 
-
 // Create User (Signup)
 const registerUser = async (req, res) => {
     try {
