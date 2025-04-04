@@ -4,50 +4,159 @@ const User = require("../model/userSchema");
 const { generateVerificationToken } = require("../middleware/jwtAuthentiaction");
 const { sendVerificationEmail } = require("../services/emailService");
 
+// // Create User (Signup)
+// const registerUser = async (req, res) => {
+//     try {
+//         const { fullName, email, password, phone, gender, dateOfBirth, religion, caste, location, bio, role, profilePicture } = req.body;
+
+//         const existingUser = await User.findOne({ email });
+//         if (existingUser) {
+//             return res.status(400).json({ message: "Email already exists" });
+//         }
+
+//         const currentDate = new Date();
+//         if (new Date(dateOfBirth) > currentDate) {
+//             return res.status(400).json({ error: "Invalid date of birth. Cannot be in the future." });
+//         }
+
+
+
+//         // Inside your user registration route
+//         if (!password || password.length < 3) {
+//             return res.status(400).json({ message: "Password must be at least 3 characters long" });
+//         }
+
+
+//         // Hash password
+//         const salt = await bcrypt.genSalt(10);
+//         const hashedPassword = await bcrypt.hash(password, salt);
+
+//         if (!profilePicture) {
+//             return res.status(400).json({ message: "Profile picture is required" });
+//         }
+
+//         const newUser = new User({
+//             fullName,
+//             email,
+//             password: hashedPassword,
+//             phone,
+//             gender,
+//             dateOfBirth,
+//             religion,
+//             caste,
+//             location,
+//             bio,
+//             role: role || "User",
+//             profilePicture,
+//         });
+
+//         await newUser.save();
+
+//         const token = generateVerificationToken(newUser._id, newUser.role);
+//         await sendVerificationEmail(newUser.email, token);
+
+//         res.status(201).json({ message: "User registered successfully Check email for verification.", userId: newUser._id });
+//     } catch (error) {
+//         console.error("Registration error:", error);
+//         res.status(500).json({ message: "Internal Server Error", error: error.message });
+//     }
+// };
+
+
+// new route for registration 
+
 // Create User (Signup)
 const registerUser = async (req, res) => {
     try {
-        const { fullName, email, password, phone, gender, dateOfBirth, religion, caste, location, bio, role, profilePicture } = req.body;
-
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: "Email already exists" });
-        }
-
-        const currentDate = new Date();
-        if (new Date(dateOfBirth) > currentDate) {
-            return res.status(400).json({ error: "Invalid date of birth. Cannot be in the future." });
-        }
-
-
-
-        // Inside your user registration route
-        if (!password || password.length < 3) {
-            return res.status(400).json({ message: "Password must be at least 3 characters long" });
-        }
-
-
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        if (!profilePicture) {
-            return res.status(400).json({ message: "Profile picture is required" });
-        }
-
-        const newUser = new User({
-            fullName,
+        const {
+            firstName,
+            middleName,
+            lastName,
             email,
-            password: hashedPassword,
+            password,
             phone,
             gender,
             dateOfBirth,
             religion,
             caste,
-            location,
+            rashi,
+            gothra,
+            bloodGroup,
+            color,
+            height,
+            weight,
+            motherTongue,
+            qualification,
+            occupation,
+            annualIncome,
+            permanentAddress,
+            currentAddress,
             bio,
-            role: role || "User",
             profilePicture,
+            aadharCardPhoto
+        } = req.body;
+
+        // Check if email already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
+
+        // Validate date of birth
+        const currentDate = new Date();
+        if (new Date(dateOfBirth) > currentDate) {
+            return res.status(400).json({ message: "Invalid date of birth. Cannot be in the future." });
+        }
+
+        // Validate password
+        if (!password || password.length < 3) {
+            return res.status(400).json({ message: "Password must be at least 3 characters long" });
+        }
+
+        // Check for required profile picture
+        if (!profilePicture) {
+            return res.status(400).json({ message: "Profile picture is required" });
+        }
+
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Generate fullName from name components
+        const fullName = middleName ?
+            `${firstName} ${middleName} ${lastName}` :
+            `${firstName} ${lastName}`;
+
+        // Create new user with all fields
+        const newUser = new User({
+            firstName,
+            middleName,
+            lastName,
+            fullName, // For backward compatibility
+            email,
+            password: hashedPassword,
+            phone,
+            gender,
+            dateOfBirth,
+            religion: religion || "Hindu", // Default to Hindu as shown in the form
+            caste,
+            rashi,
+            gothra,
+            bloodGroup,
+            color,
+            height: height ? Number(height) : undefined,
+            weight: weight ? Number(weight) : undefined,
+            motherTongue,
+            qualification,
+            occupation,
+            annualIncome: annualIncome ? Number(annualIncome) : undefined,
+            permanentAddress,
+            currentAddress,
+            location: permanentAddress, // For backward compatibility, using permanentAddress
+            bio,
+            profilePicture,
+            aadharCardPhoto,
+            role: "User", // Default to User role
         });
 
         await newUser.save();
@@ -55,12 +164,16 @@ const registerUser = async (req, res) => {
         const token = generateVerificationToken(newUser._id, newUser.role);
         await sendVerificationEmail(newUser.email, token);
 
-        res.status(201).json({ message: "User registered successfully Check email for verification.", userId: newUser._id });
+        res.status(201).json({
+            message: "User registered successfully. Check email for verification.",
+            userId: newUser._id
+        });
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
 
 // Login User
 const loginUser = async (req, res) => {
