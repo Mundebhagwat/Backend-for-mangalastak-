@@ -10,6 +10,7 @@ const matchProfilesRoutes = require("./src/config/routes/matchRoutes");
 const requestRoutes = require("./src/config/routes/requestRoutes");
 const emailVerifyRoutes = require("./src/config/routes/emailVerifyRoutes");
 const messageRoutes = require("./src/config/routes/messageRoutes");
+const fileUpload = require("express-fileupload");
 
 const app = express();
 dotenv.config();
@@ -24,6 +25,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(express.json({ limit: "10mb" }));
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/", // Needed for cloudinary
+}));
 
 
 // routes
