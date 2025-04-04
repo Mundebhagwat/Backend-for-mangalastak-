@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/userSchema");
 const { generateVerificationToken } = require("../middleware/jwtAuthentiaction");
 const { sendVerificationEmail } = require("../services/emailService");
+const cloudinary = require("../utils/cloudinary");
 
 // // Create User (Signup)
 // const registerUser = async (req, res) => {
@@ -209,4 +210,36 @@ const getUserProfile = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile };
+const uploadProfilePicture = async (req, res) => {
+    try {
+        const file = req.files?.profilePicture;
+
+        if (!file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(file.tempFilePath, {
+            folder: "profile_pictures",
+        });
+
+        // Update user's profile picture in DB
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { profilePicture: result.secure_url },
+            { new: true }
+        ).select("-password");
+
+        res.status(200).json({
+            message: "Profile picture updated successfully",
+            profilePicture: user.profilePicture,
+        });
+
+    } catch (error) {
+        console.error("Upload error:", error);
+        res.status(500).json({ error: "Server error while uploading profile picture" });
+    }
+};
+
+
+module.exports = { registerUser, loginUser, getUserProfile, uploadProfilePicture };

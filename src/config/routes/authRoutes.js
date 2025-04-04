@@ -1,5 +1,5 @@
 const express = require("express");
-const { registerUser, loginUser, getUserProfile } = require("../controllers/authController.js");
+const { registerUser, loginUser, getUserProfile, uploadProfilePicture } = require("../controllers/authController.js");
 const { authMiddleware } = require("../middleware/jwtAuthentiaction.js");
 const upload = require("../middleware/uploadMiddleware.js");
 const { updatedUser, deleteUserlogged } = require("../controllers/userController.js")
@@ -11,5 +11,6 @@ router.post("/login", loginUser);        // Login User
 router.get("/me", authMiddleware, getUserProfile); // Get Logged-in User Profile
 router.put("/update", authMiddleware, updatedUser);
 router.delete("/delete", authMiddleware, deleteUserlogged);
+router.put("/upload-profile-picture", authMiddleware, uploadProfilePicture);
 
 module.exports = router;
