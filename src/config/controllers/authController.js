@@ -5,6 +5,7 @@ const { generateVerificationToken } = require("../middleware/jwtAuthentiaction")
 const { sendVerificationEmail } = require("../services/emailService");
 const cloudinary = require("../utils/cloudinary");
 
+
 // // Create User (Signup)
 // const registerUser = async (req, res) => {
 //     try {

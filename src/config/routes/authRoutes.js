@@ -11,6 +11,6 @@ router.post("/login", loginUser);        // Login User
 router.get("/me", authMiddleware, getUserProfile); // Get Logged-in User Profile
 router.put("/update", authMiddleware, updatedUser);
 router.delete("/delete", authMiddleware, deleteUserlogged);
-router.put("/upload-profile-picture", authMiddleware, uploadProfilePicture);
+router.post("/upload-profile-picture", authMiddleware, uploadProfilePicture);
 
 module.exports = router;
